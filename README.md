@@ -7,6 +7,10 @@ This is a demo project using SQLite with [SQL.js-HTTPVFS](https://github.com/phi
 
 The weather data is based on [this weather dataset](https://www.kaggle.com/datasets/guillemservera/global-daily-climate-data?resource=download)
 
+**You can learn more about how it works and how I made it [here](http://www.youtube.com/watch?v=cYP0k_shdWc)**.
+
+[![Youtube Video about how this project was made](http://img.youtube.com/vi/cYP0k_shdWc/0.jpg)](http://www.youtube.com/watch?v=cYP0k_shdWc 'Host your Database for Free on Github Pages')
+
 ## Support me
 
 We are building **[solidtime](https://www.solidtime.io) - The modern Open Source Time Tracker**
