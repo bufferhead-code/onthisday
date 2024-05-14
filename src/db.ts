@@ -8,16 +8,10 @@ const wasmUrl = new URL(
   "sql.js-httpvfs/dist/sql-wasm.wasm",
   import.meta.url,
 );
-
-
 const config = {
-  from: "inline",
-  config: {
-    serverMode: "full",
-    requestChunkSize: 4 * 1024,
-    url: "/onthisday.db"
-  }
-};
+  from: "jsonconfig",
+  configUrl: "/config.json"
+}
 
 let maxBytesToRead = 10 * 1024 * 1024;
 
@@ -38,7 +32,6 @@ export async function getCountryData(country: string){
 }
 
 export async function getDailyCountryData(country: string, date: Dayjs){
-  return null;
   const result = await worker.db.exec(`select * from stats where country = ? AND date = ?`, [country, date.format('YYYY-MM-DD')])
   return result;
 }
