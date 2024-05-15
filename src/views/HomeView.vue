@@ -10,7 +10,7 @@ import DayPreviewCard from '@/components/DayPreviewCard.vue'
 import { allCountries } from '../../countries'
 import { feature } from '@rapideditor/country-coder'
 
-const data = ref<RegExpExecArray>()
+const data = ref<RegExpExecArray | null>(null)
 
 const currentPosition = ref('Austria');
 async function updateData(){
@@ -18,7 +18,8 @@ async function updateData(){
 }
 
 watch(currentPosition, async () => {
-  await updateData()
+  data.value = null
+  historicDataLoaded.value = false
 })
 
 onMounted(async () => {
@@ -27,9 +28,6 @@ onMounted(async () => {
     if (locationBasedLocation && allCountries?.includes(locationBasedLocation)) {
       currentPosition.value = locationBasedLocation
     }
-    await updateData()
-  }, async () => {
-    await updateData()
   })
 })
 
@@ -78,6 +76,16 @@ const y = [
 
 function xAxisFormatting(d) {
   return dayjs.unix(d).format('YYYY')
+}
+
+const historicDataLoaded = ref(false);
+const historicDataLoading = ref(false);
+
+async function loadHistoricData(){
+  historicDataLoading.value = true;
+  await updateData()
+  historicDataLoaded.value = true;
+  historicDataLoading.value = false;
 }
 
 </script>
@@ -138,18 +146,30 @@ function xAxisFormatting(d) {
 
           <div class="custom-vis">
             <CardHeadline>
-              Historical Data for Austria on {{ dayjs().format('D') }}. {{ dayjs().format('MMM') }}
+              Historical Data for {{ currentPosition }} on {{ dayjs().format('D') }}. {{ dayjs().format('MMM') }}
             </CardHeadline>
-            <VisXYContainer :data="graphData">
-              <VisScatter :x="x" :y="y" />
-              <VisLine :lineWidth="5" :x="x" :y="avgY" />
-              <VisAxis type="x" :x="x" :tickFormat="xAxisFormatting" />
-              <VisAxis type="y" />
-            </VisXYContainer>
+            <div class="relative">
+              <VisXYContainer :data="graphData">
+                <VisScatter :x="x" :y="y" />
+                <VisLine :lineWidth="5" :x="x" :y="avgY" />
+                <VisAxis type="x" :x="x" :tickFormat="xAxisFormatting" />
+                <VisAxis type="y" />
+              </VisXYContainer>
+              <div v-if="!historicDataLoaded" class="bg-white/50 w-full h-full absolute left-0 top-0 flex items-center justify-center">
+                <button :disabled="historicDataLoading" class="bg-white flex items-center font-medium rounded-lg border border-gray-100 px-3 py-2 shadow hover:bg-gray-100 transition" @click="loadHistoricData">
+                  <svg v-if="historicDataLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Load all historic data</span>
+                  </button>
+              </div>
+            </div>
+
           </div>
           <div class="grid grid-cols-3 sm:grid-cols-4 gap-x-6 gap-y-6">
             <div v-for="i in 12">
-              <DayPreviewCard :date="dayjs().subtract(i, 'y')" />
+              <DayPreviewCard :country="currentPosition" :date="dayjs().subtract(i, 'y')" />
             </div>
           </div>
         </div>

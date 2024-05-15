@@ -4,18 +4,27 @@ import dayjs from '@/time'
 import CardHeadline from '@/components/CardHeadline.vue'
 import Card from '@/components/Card.vue'
 import type { Dayjs } from 'dayjs'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { getDailyCountryData } from '@/db'
 
 const props = defineProps<{
   date: Dayjs
+  country: string
 }>()
 
 const dailyData = ref([])
 
 onMounted(async () => {
-  dailyData.value = (await getDailyCountryData('Austria', props.date))[0]?.values[0]
+  await updateData()
 })
+
+watch(() => props.date, async () => {
+  await updateData()
+})
+
+async function updateData(){
+  dailyData.value = (await getDailyCountryData(props.country, props.date))[0]?.values[0]
+}
 
 function formatTemperature(temperature: number) {
   return `${temperature?.toFixed(1)}°C`
